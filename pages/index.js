@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import axios from 'axios'
+import qs from 'qs'
 
 import { API_URL } from '@/config/index'
 import Layout from '@/components/Layout'
@@ -10,7 +12,7 @@ export default function HomePage({ events }) {
       <h1>Upcoming Events</h1>
       {events.length === 0 && <h3>No Events to Show</h3>}
       {events.map(evt => (
-        <EventItem key={evt.id} evt={evt} />
+        <EventItem key={evt.id} evt={evt.attributes} />
       ))}
       {events.length > 0 && (
         <Link href="/events">
@@ -22,10 +24,27 @@ export default function HomePage({ events }) {
 }
 
 export async function getStaticProps() {
-  const res = await fetch(`${API_URL}/api/events`)
-  const events = await res.json()
+  const query = qs.stringify(
+    {
+      populate: 'image',
+      sort: ['date:asc'],
+      pagination: {
+        page: 1,
+        pageSize: 3,
+      },
+    },
+    {
+      encodeValuesOnly: true,
+    }
+  )
+
+  const url = `${API_URL}/events?${query}`
+
+  const {
+    data: { data: events },
+  } = await axios.get(url)
   return {
-    props: { events: events.slice(0, 3) },
+    props: { events },
     revalidate: 1,
   }
 }

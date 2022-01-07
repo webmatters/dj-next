@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { FaPencilAlt, FaTimes } from 'react-icons/fa'
+import axios from 'axios'
+import qs from 'qs'
 
 import { API_URL } from '@/config/index'
 import styles from '@/styles/Event.module.css'
@@ -10,6 +12,8 @@ export default function EventPage({ evt }) {
   const deleteEvent = evt => {
     console.log('delete')
   }
+  const { date, time, name, image, performers, description, venue, address } =
+    evt.attributes
 
   return (
     <Layout>
@@ -27,19 +31,24 @@ export default function EventPage({ evt }) {
         </div>
 
         <span>
-          {evt.date} at {evt.time}
-          <h1>{evt.name}</h1>
-          {evt.image && (
+          {new Date(date).toLocaleDateString('en-US')} at {time}
+          <h1>{name}</h1>
+          {image && (
             <div className={styles.image}>
-              <Image src={evt.image} width={960} height={600} alt={evt.name} />
+              <Image
+                src={image.data.attributes.formats.medium.url}
+                width={960}
+                height={600}
+                alt={evt.name}
+              />
             </div>
           )}
           <h3>Performers: </h3>
-          <p>{evt.performers}</p>
+          <p>{performers}</p>
           <h3>Description: </h3>
-          <p>{evt.description}</p>
-          <h3>Venue: {evt.venue}</h3>
-          <p>{evt.address}</p>
+          <p>{description}</p>
+          <h3>Venue: {venue}</h3>
+          <p>{address}</p>
           <Link href={'/events'}>
             <a className={styles.back}>{'<'} Go Back</a>
           </Link>
@@ -50,11 +59,27 @@ export default function EventPage({ evt }) {
 }
 
 export async function getServerSideProps({ query: { slug } }) {
-  const res = await fetch(`${API_URL}/api/events/${slug}`)
-  const events = await res.json()
-  return {
-    props: {
-      evt: events[0],
+  const query = qs.stringify(
+    {
+      filters: {
+        slug: {
+          $eq: slug,
+        },
+      },
+      populate: 'image',
     },
+    {
+      encodeValuesOnly: true,
+    }
+  )
+
+  const url = `${API_URL}/events?${query}`
+
+  const {
+    data: { data: events },
+  } = await axios.get(url)
+  console.log(events)
+  return {
+    props: { evt: events[0] },
   }
 }

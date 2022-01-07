@@ -6,5 +6,6 @@
       "@/styles/*": ["styles/*"],
       "@/config/*": ["config/*"]
     }
-  }
+  },
+  "exclude": ["node_modules"]
 }
