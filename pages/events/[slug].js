@@ -1,19 +1,37 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 import { FaPencilAlt, FaTimes } from 'react-icons/fa'
 import axios from 'axios'
 import qs from 'qs'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import { API_URL } from '@/config/index'
 import styles from '@/styles/Event.module.css'
 import Layout from '@/components/Layout'
 
 export default function EventPage({ evt }) {
-  const deleteEvent = evt => {
-    console.log('delete')
-  }
   const { date, time, name, image, performers, description, venue, address } =
     evt.attributes
+
+  const router = useRouter()
+
+  const deleteEvent = async event => {
+    if (confirm('Are you sure?')) {
+      try {
+        const res = await axios.delete(`${API_URL}/events/${evt.id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+        router.push('/events')
+      } catch (error) {
+        console.error('There was an error!', error?.response?.data?.error)
+        toast.error(error?.response?.data?.error?.message)
+      }
+    }
+  }
 
   return (
     <Layout>
@@ -33,6 +51,7 @@ export default function EventPage({ evt }) {
         <span>
           {new Date(date).toLocaleDateString('en-US')} at {time}
           <h1>{name}</h1>
+          <ToastContainer />
           {image && (
             <div className={styles.image}>
               <Image
