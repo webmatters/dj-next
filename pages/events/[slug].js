@@ -36,7 +36,10 @@ export default function EventPage({ evt }) {
           {image && (
             <div className={styles.image}>
               <Image
-                src={image.data.attributes.formats.medium.url}
+                src={
+                  image?.data?.attributes?.formats?.medium?.url ||
+                  '/images/event-default.png'
+                }
                 width={960}
                 height={600}
                 alt={evt.name}
@@ -78,7 +81,6 @@ export async function getServerSideProps({ query: { slug } }) {
   const {
     data: { data: events },
   } = await axios.get(url)
-  console.log(events)
   return {
     props: { evt: events[0] },
   }
