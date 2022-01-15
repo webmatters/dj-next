@@ -7,7 +7,6 @@ import EventItem from '@/components/EventItem'
 import Pagination from '@/components/Pagination'
 
 export default function EventsPage({ events, page, pageCount }) {
-  console.log(page, pageCount)
   return (
     <Layout>
       <h1>Events</h1>
