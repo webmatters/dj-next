@@ -1,12 +1,12 @@
 import { FaUser } from 'react-icons/fa'
 import { useState, useEffect, useContext } from 'react'
-import { useRouter } from 'next/router'
 import Link from 'next/link'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { API_URL } from '@/config/index'
+import AuthContext from '@/context/AuthContext'
 import styles from '@/styles/AuthForm.module.css'
 import Layout from '@/components/Layout'
 
@@ -16,6 +16,8 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('')
   const [passwordConfirm, setPasswordConfirm] = useState('')
 
+  const { register, error } = useContext(AuthContext)
+
   const handleSubmit = e => {
     e.preventDefault()
 
@@ -23,7 +25,7 @@ export default function RegisterPage() {
       toast.error('Passwords do not match')
       return
     }
-    console.log({ email, password })
+    register({ username, email, password })
   }
 
   return (

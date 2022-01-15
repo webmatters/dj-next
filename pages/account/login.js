@@ -1,12 +1,12 @@
 import { FaUser } from 'react-icons/fa'
 import { useState, useEffect, useContext } from 'react'
-import { useRouter } from 'next/router'
 import Link from 'next/link'
 import axios from 'axios'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 import { API_URL } from '@/config/index'
+import AuthContext from '@/context/AuthContext'
 import styles from '@/styles/AuthForm.module.css'
 import Layout from '@/components/Layout'
 
@@ -14,9 +14,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  const { login, error } = useContext(AuthContext)
+
   const handleSubmit = e => {
     e.preventDefault()
-    console.log({ email, password })
+    login({ email, password })
   }
 
   return (
