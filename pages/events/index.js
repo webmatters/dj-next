@@ -1,11 +1,13 @@
 import qs from 'qs'
 import axios from 'axios'
 
-import { API_URL } from '@/config/index'
+import { API_URL, PER_PAGE } from '@/config/index'
 import Layout from '@/components/Layout'
 import EventItem from '@/components/EventItem'
+import Pagination from '@/components/Pagination'
 
-export default function EventsPage({ events }) {
+export default function EventsPage({ events, page, pageCount }) {
+  console.log(page, pageCount)
   return (
     <Layout>
       <h1>Events</h1>
@@ -13,14 +15,19 @@ export default function EventsPage({ events }) {
       {events.map(evt => (
         <EventItem key={evt.id} evt={evt.attributes} />
       ))}
+      <Pagination page={page} pageCount={pageCount} />
     </Layout>
   )
 }
 
-export async function getStaticProps() {
+export async function getServerSideProps({ query: { page = 1 } }) {
   const query = qs.stringify(
     {
       populate: 'image',
+      pagination: {
+        page,
+        pageSize: PER_PAGE,
+      },
     },
     {
       encodeValuesOnly: true,
@@ -29,11 +36,13 @@ export async function getStaticProps() {
 
   const url = `${API_URL}/events?${query}`
 
-  const {
-    data: { data: events },
-  } = await axios.get(url)
+  const res = await axios.get(url)
+
   return {
-    props: { events },
-    revalidate: 1,
+    props: {
+      events: res.data.data,
+      page: res.data.meta.pagination.page,
+      pageCount: res.data.meta.pagination.pageCount,
+    },
   }
 }
