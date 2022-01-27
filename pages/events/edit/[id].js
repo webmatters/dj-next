@@ -208,7 +208,7 @@ export default function EditEventPage({ evt }) {
   )
 }
 
-export async function getServerSideProps({ params: { id } }) {
+export async function getServerSideProps({ params: { id }, req }) {
   const query = qs.stringify(
     {
       populate: 'image',
@@ -219,6 +219,7 @@ export async function getServerSideProps({ params: { id } }) {
   )
 
   const { data } = await axios.get(`${API_URL}/events/${id}?${query}`)
+  console.log(req.headers.cookie)
 
   return {
     props: { evt: data.data },

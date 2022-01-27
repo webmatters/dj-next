@@ -10,18 +10,31 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [errorMessage, setErrorMessage] = useState(null)
 
-  // Register user
+  const router = useRouter()
+
+  useEffect(() => checkUserLoggedIn(), [])
+
   const register = async user => {
-    console.log(user)
+    console.log('Register was called: ', user)
+    try {
+      const { data } = await axios.post(`${NEXT_URL}/api/register`, user)
+      setUser(data.user)
+      router.push('/account/dashboard')
+    } catch (err) {
+      console.log('Registration error: ', err.response.data.error)
+      setErrorMessage(err.response.data.error)
+      setErrorMessage(null)
+    }
   }
 
   const login = async ({ email: identifier, password }) => {
     try {
-      const res = await axios.post(`${NEXT_URL}/api/login`, {
+      const { data } = await axios.post(`${NEXT_URL}/api/login`, {
         identifier,
         password,
       })
-      setUser(res.data.user)
+      setUser(data.user)
+      router.push('/account/dashboard')
     } catch (err) {
       console.log('Login error: ', err.response.data.error)
       setErrorMessage(err.response.data.error)
@@ -29,14 +42,27 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  // Log out user
   const logout = async () => {
-    console.log('logout')
+    try {
+      await axios.post(`${NEXT_URL}/api/logout`)
+      setUser(null)
+      router.push('/')
+    } catch (err) {
+      console.log('Logout error: ', err)
+      setErrorMessage(err)
+      setErrorMessage(null)
+    }
   }
 
-  // Check if user is logged in
-  const checkUserLoggedIn = async user => {
-    console.log('Check')
+  const checkUserLoggedIn = async () => {
+    try {
+      const { data } = await axios.get(`${NEXT_URL}/api/user`)
+      console.log('checkUserLoggedIn: ', data)
+      setUser(data.user)
+    } catch (err) {
+      console.log('checkUserLoggedIn error: ', err)
+      setUser(null)
+    }
   }
 
   return (

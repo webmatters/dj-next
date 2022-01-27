@@ -5,10 +5,12 @@ import { API_URL } from '@/config/index'
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { identifier, password } = req.body
+    console.log('Strapi register: ', req.body)
+    const { username, email, password } = req.body
     try {
-      const { data } = await axios.post(`${API_URL}/auth/local`, {
-        identifier,
+      const { data } = await axios.post(`${API_URL}/auth/local/register`, {
+        username,
+        email,
         password,
       })
 
